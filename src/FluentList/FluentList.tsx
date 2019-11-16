@@ -1,9 +1,9 @@
 import {
+	CSSProperties,
 	Flex,
 	Grid,
 	ICSSInJSStyle,
 	Ref,
-	CSSProperties,
 } from '@stardust-ui/react';
 import * as React from 'react';
 import {
@@ -14,6 +14,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import * as Im from 'seamless-immutable';
 import { Checkbox } from './checkbox/Checkbox';
 import { FluentListProps } from './FluentList.types';
 import { useTheme } from './helpers/useTheme';
@@ -88,11 +89,30 @@ export function FluentList<D>({
 			maxHeight: `${rowHeight}px`,
 			overflow: 'hidden',
 			contain: 'layout style paint',
+			borderBottom: `1px solid ${theme.siteVariables.colorScheme.default.border1}`,
 			':hover': {
 				background: theme.siteVariables.colorScheme.default.backgroundHover,
 			},
+			':focus': {
+				outlineColor: theme.siteVariables.colorScheme.default.borderActive,
+				outlineStyle: 'solid',
+			},
+			'&.selected': {
+				background: theme.siteVariables.colorScheme.default.backgroundActive,
+				':hover': {
+					background:
+						theme.siteVariables.colorScheme.default.backgroundActiveHover,
+				},
+			},
 		}),
-		[rowHeight, theme.siteVariables.colorScheme.default.backgroundHover],
+		[
+			rowHeight,
+			theme.siteVariables.colorScheme.default.backgroundActive,
+			theme.siteVariables.colorScheme.default.backgroundActiveHover,
+			theme.siteVariables.colorScheme.default.backgroundHover,
+			theme.siteVariables.colorScheme.default.border1,
+			theme.siteVariables.colorScheme.default.borderActive,
+		],
 	);
 
 	useLayoutEffect(() => {
@@ -110,13 +130,53 @@ export function FluentList<D>({
 		}
 	}, [items.length, mainGrid, pageArray.length, rowHeight, setScroll]);
 
+	const [allRowsSelected, setAllRowsSelection] = useState(false);
+	const [rowSelected, setRowSelected] = useState(() => {
+		const result: Record<string, boolean> = {};
+		for (const item of items) {
+			result[item.itemKey] = false;
+		}
+		return Im.from(result);
+	});
+
+	const toggleItemSelect = useCallback(
+		(event: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+			const key = (event.currentTarget as HTMLDivElement).dataset.key;
+			if (key) {
+				setRowSelected(state => {
+					console.log(state[key], allRowsSelected);
+					if (state[key] && allRowsSelected) {
+						setAllRowsSelection(false);
+					}
+					return state.set(key, !state[key]);
+				});
+			}
+		},
+		[allRowsSelected],
+	);
+
+	const toggleAllSelect = useCallback(() => {
+		setAllRowsSelection(state => {
+			if (state) {
+				setRowSelected(Im.from({}));
+			} else {
+				const result: Record<string, boolean> = {};
+				for (const item of items) {
+					result[item.itemKey] = true;
+				}
+				setRowSelected(Im.from(result));
+			}
+			return !state;
+		});
+	}, [items]);
+
 	return (
 		<Flex fill column>
 			{enableHeader && (
 				<Grid columns={columnDimensions} styles={rowStyle}>
 					{enableCheckbox && (
 						<Flex vAlign="center" hAlign="center">
-							<Checkbox />
+							<Checkbox onClick={toggleAllSelect} checked={allRowsSelected} />
 						</Flex>
 					)}
 					{columns.map(column => (
@@ -139,17 +199,23 @@ export function FluentList<D>({
 						if (!item) {
 							return null;
 						}
+						const shouldCheck = rowSelected[item.itemKey];
 						return (
 							<Grid
 								tabIndex={0}
 								role="listitem"
 								key={item.itemKey}
 								styles={rowStyle}
+								className={shouldCheck ? 'selected' : undefined}
 								columns={columnDimensions}
 							>
 								{enableCheckbox && (
 									<Flex vAlign="center" hAlign="center">
-										<Checkbox />
+										<Checkbox
+											data-key={item.itemKey}
+											onClick={toggleItemSelect}
+											checked={shouldCheck}
+										/>
 									</Flex>
 								)}
 								{columns.map(column =>

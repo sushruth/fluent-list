@@ -12,14 +12,14 @@ export const Checkbox: React.FC<React.HTMLAttributes<HTMLInputElement> & {
 	return (
 		<Status
 			role="checkbox"
-			icon="stardust-checkmark"
+			icon={checked ? 'stardust-checkmark' : undefined}
 			onClick={onClick}
 			aria-checked={checked}
 			size="largest"
+			state={checked ? 'info' : 'unknown'}
 			styles={checkboxStyle}
-			as="font"
+			as="div"
 			{...rest}
-			// type="checkbox"
 		/>
 	);
 };

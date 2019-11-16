@@ -33,7 +33,7 @@ export const columns: FLuentListColumn<Item>[] = [
 	{
 		columnKey: 'name',
 		headerComponent: ({ column }) => (
-			<Text size="small" weight="bold" content="name" />
+			<Text size="small" weight="bold" content="NAME" />
 		),
 		itemComponent: ({ item }) => <Cell>{item.name}</Cell>,
 		gridColumnTemplate: 'minmax(200px, 1fr)',
@@ -41,7 +41,7 @@ export const columns: FLuentListColumn<Item>[] = [
 	{
 		columnKey: 'number',
 		headerComponent: ({ column }) => (
-			<Text size="small" weight="bold" content="number" />
+			<Text size="small" weight="bold" content="NUMBER" />
 		),
 		itemComponent: ({ item }) => <Cell>{item.number}</Cell>,
 		gridColumnTemplate: 'minmax(200px, 1fr)',
@@ -49,7 +49,7 @@ export const columns: FLuentListColumn<Item>[] = [
 	{
 		columnKey: 'word',
 		headerComponent: ({ column }) => (
-			<Text size="small" weight="bold" content="word" />
+			<Text size="small" weight="bold" content="WORD" />
 		),
 		itemComponent: ({ item }) => <Cell>{item.word}</Cell>,
 		gridColumnTemplate: 'minmax(100px, 1fr)',
