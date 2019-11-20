@@ -12,7 +12,7 @@ type Item = {
 	word: string;
 };
 
-export const items = Array(50000)
+export const items = Array(400000)
 	.fill(undefined)
 	.map(
 		(_, index): FluentListItem<Item> => {

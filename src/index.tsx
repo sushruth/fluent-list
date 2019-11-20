@@ -6,7 +6,19 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
-	<Provider theme={themes.teamsDark}>
+	<Provider
+		theme={{
+			...themes.teamsDark,
+			staticStyles: [
+				{
+					':root': {
+						background:
+							themes.teamsDark.siteVariables.colorScheme.default.background,
+					},
+				},
+			],
+		}}
+	>
 		<App />
 	</Provider>,
 	document.getElementById('root'),

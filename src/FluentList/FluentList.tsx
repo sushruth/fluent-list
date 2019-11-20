@@ -20,12 +20,6 @@ import { FluentListProps } from './FluentList.types';
 import { useTheme } from './helpers/useTheme';
 
 const buffer = 10;
-const mainGridStyle: ICSSInJSStyle = {
-	contain: 'layout paint',
-	listStyle: 'none',
-	margin: 0,
-	padding: 0,
-};
 
 const imageStyle: CSSProperties = {
 	opacity: 0,
@@ -169,6 +163,17 @@ export function FluentList<D>({
 			return !state;
 		});
 	}, [items]);
+
+	const mainGridStyle: ICSSInJSStyle = useMemo(
+		() => ({
+			contain: 'layout paint',
+			listStyle: 'none',
+			margin: 0,
+			padding: 0,
+			height: items.length * rowHeight,
+		}),
+		[items.length, rowHeight],
+	);
 
 	return (
 		<Flex fill column>
