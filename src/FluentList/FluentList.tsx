@@ -1,6 +1,7 @@
 import {
-	CSSProperties,
+	ComponentEventHandler,
 	Flex,
+	FlexProps,
 	Grid,
 	ICSSInJSStyle,
 	Ref,
@@ -15,15 +16,9 @@ import {
 	useState,
 } from 'react';
 import * as Im from 'seamless-immutable';
-import { Checkbox } from './checkbox/Checkbox';
+import { ListCheckbox } from './checkbox/Checkbox';
 import { FluentListProps } from './FluentList.types';
 import { useTheme } from './helpers/useTheme';
-
-const buffer = 10;
-
-const imageStyle: CSSProperties = {
-	opacity: 0,
-};
 
 export function FluentList<D>({
 	items,
@@ -33,7 +28,9 @@ export function FluentList<D>({
 	rowHeight,
 }: FluentListProps<D>) {
 	const [pageArray, setPageArray] = useState<undefined[]>([]);
-	const rootHeight = useRef<number | undefined>(0);
+	const rootHeight = useRef(0);
+	const rowFocussed = useRef('');
+	const pageSize = useRef(0);
 	const mainGrid = createRef<HTMLDivElement>();
 	const animationFrameRequestToken = useRef<number | undefined>(0);
 	const scrollPosition = useRef(window.scrollY);
@@ -45,25 +42,22 @@ export function FluentList<D>({
 	const setScroll = useCallback(() => {
 		setThreshold(() => {
 			const min = Math.max(
-				Math.floor(scrollPosition.current / rowHeight) - buffer,
+				Math.floor(scrollPosition.current / rowHeight) - pageSize.current,
 				0,
 			);
-			const max = Math.min(
-				pageArray.length + min + 2 * buffer,
-				items.length - 1,
-			);
+			const max = Math.min(3 * pageSize.current + min, items.length - 1);
 			return {
 				min,
 				max,
 			};
 		});
-	}, [items.length, pageArray.length, rowHeight]);
+	}, [items.length, rowHeight]);
 
 	const mainGridObserver = useRef(
 		new IntersectionObserver(([entry]) => {
 			rootHeight.current = entry.rootBounds?.height || 0 / rowHeight;
-			const pageSize = Math.ceil(rootHeight.current / rowHeight) + buffer;
-			setPageArray(Array(pageSize + buffer).fill(undefined));
+			pageSize.current = Math.ceil(rootHeight.current / rowHeight);
+			setPageArray(Array(3 * pageSize.current).fill(undefined));
 			setScroll();
 		}),
 	);
@@ -82,6 +76,9 @@ export function FluentList<D>({
 			minHeight: `${rowHeight}px`,
 			maxHeight: `${rowHeight}px`,
 			overflow: 'hidden',
+			position: 'absolute',
+			left: 0,
+			right: 0,
 			contain: 'layout style paint',
 			borderBottom: `1px solid ${theme.siteVariables.colorScheme.default.border1}`,
 			':hover': {
@@ -93,6 +90,7 @@ export function FluentList<D>({
 			},
 			'&.selected': {
 				background: theme.siteVariables.colorScheme.default.backgroundActive,
+				borderBottom: `1px solid ${theme.siteVariables.colorScheme.default.borderActive1}`,
 				':hover': {
 					background:
 						theme.siteVariables.colorScheme.default.backgroundActiveHover,
@@ -106,6 +104,7 @@ export function FluentList<D>({
 			theme.siteVariables.colorScheme.default.backgroundHover,
 			theme.siteVariables.colorScheme.default.border1,
 			theme.siteVariables.colorScheme.default.borderActive,
+			theme.siteVariables.colorScheme.default.borderActive1,
 		],
 	);
 
@@ -138,7 +137,6 @@ export function FluentList<D>({
 			const key = (event.currentTarget as HTMLDivElement).dataset.key;
 			if (key) {
 				setRowSelected(state => {
-					console.log(state[key], allRowsSelected);
 					if (state[key] && allRowsSelected) {
 						setAllRowsSelection(false);
 					}
@@ -150,6 +148,7 @@ export function FluentList<D>({
 	);
 
 	const toggleAllSelect = useCallback(() => {
+		console.log('Toggle all');
 		setAllRowsSelection(state => {
 			if (state) {
 				setRowSelected(Im.from({}));
@@ -164,13 +163,31 @@ export function FluentList<D>({
 		});
 	}, [items]);
 
+	const onRowFocus = useCallback(
+		(itemKey: string): ComponentEventHandler<FlexProps> => () => {
+			rowFocussed.current = itemKey;
+		},
+		[],
+	);
+
+	const onRowKeyDown: ComponentEventHandler<FlexProps> = useCallback(event => {
+		const e = (event as unknown) as React.KeyboardEvent;
+		if (e.keyCode === 32) {
+			setRowSelected(state => state.set(rowFocussed.current, true));
+			e.preventDefault();
+		}
+	}, []);
+
 	const mainGridStyle: ICSSInJSStyle = useMemo(
 		() => ({
-			contain: 'layout paint',
 			listStyle: 'none',
+			position: 'relative',
 			margin: 0,
 			padding: 0,
-			height: items.length * rowHeight,
+			contain: 'layout style paint',
+			minHeight: `${items.length * rowHeight}px`,
+			height: `${items.length * rowHeight}px`,
+			maxHeight: `${items.length * rowHeight}px`,
 		}),
 		[items.length, rowHeight],
 	);
@@ -181,7 +198,10 @@ export function FluentList<D>({
 				<Grid columns={columnDimensions} styles={rowStyle}>
 					{enableCheckbox && (
 						<Flex vAlign="center" hAlign="center">
-							<Checkbox onClick={toggleAllSelect} checked={allRowsSelected} />
+							<ListCheckbox
+								onClick={toggleAllSelect}
+								checked={allRowsSelected}
+							/>
 						</Flex>
 					)}
 					{columns.map(column => (
@@ -192,15 +212,15 @@ export function FluentList<D>({
 				</Grid>
 			)}
 			<Ref innerRef={mainGrid}>
-				<Flex role="listbox" column styles={mainGridStyle}>
-					<img
-						style={imageStyle}
-						role="presentation"
-						alt=""
-						height={Math.max(threshold.min, 0) * rowHeight}
-					/>
+				<Flex
+					role="listbox"
+					column
+					styles={mainGridStyle}
+					style={{ top: `${enableHeader ? rowHeight : 0}px` }}
+				>
 					{pageArray.map((_, index) => {
-						const item = items[threshold.min + index];
+						const itemIndex = threshold.min + index;
+						const item = items[itemIndex];
 						if (!item) {
 							return null;
 						}
@@ -210,13 +230,18 @@ export function FluentList<D>({
 								tabIndex={0}
 								role="listitem"
 								key={item.itemKey}
+								style={{
+									top: `${itemIndex * rowHeight}px`,
+								}}
 								styles={rowStyle}
 								className={shouldCheck ? 'selected' : undefined}
 								columns={columnDimensions}
+								onFocus={onRowFocus(item.itemKey)}
+								onKeyDown={onRowKeyDown}
 							>
 								{enableCheckbox && (
 									<Flex vAlign="center" hAlign="center">
-										<Checkbox
+										<ListCheckbox
 											data-key={item.itemKey}
 											onClick={toggleItemSelect}
 											checked={shouldCheck}
@@ -237,12 +262,6 @@ export function FluentList<D>({
 							</Grid>
 						);
 					})}
-					<img
-						style={imageStyle}
-						role="presentation"
-						alt=""
-						height={Math.max(items.length - threshold.max, 0) * rowHeight}
-					/>
 				</Flex>
 			</Ref>
 		</Flex>

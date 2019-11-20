@@ -3,10 +3,11 @@ import * as React from 'react';
 
 const checkboxStyle: ICSSInJSStyle = {
 	appearance: 'none',
+	cursor: 'pointer',
 	':focus': { outline: 'none' },
 };
 
-export const Checkbox: React.FC<React.HTMLAttributes<HTMLInputElement> & {
+export const ListCheckbox: React.FC<React.HTMLAttributes<HTMLInputElement> & {
 	checked?: boolean;
 }> = ({ checked, onClick, ...rest }) => {
 	return (
@@ -16,7 +17,7 @@ export const Checkbox: React.FC<React.HTMLAttributes<HTMLInputElement> & {
 			onClick={onClick}
 			aria-checked={checked}
 			size="largest"
-			state={checked ? 'info' : 'unknown'}
+			state={checked ? 'success' : 'unknown'}
 			styles={checkboxStyle}
 			as="div"
 			{...rest}
