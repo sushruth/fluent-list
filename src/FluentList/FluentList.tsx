@@ -170,13 +170,46 @@ export function FluentList<D>({
 		[],
 	);
 
-	const onRowKeyDown: ComponentEventHandler<FlexProps> = useCallback(event => {
-		const e = (event as unknown) as React.KeyboardEvent;
-		if (e.keyCode === 32) {
-			setRowSelected(state => state.set(rowFocussed.current, true));
-			e.preventDefault();
-		}
-	}, []);
+	const onRowEvent = useCallback(
+		(key: string): ComponentEventHandler<FlexProps> => event => {
+			const e = (event as unknown) as React.KeyboardEvent;
+			if (e.keyCode === 32) {
+				e.preventDefault();
+				return setRowSelected(state => state.set(rowFocussed.current, true));
+			}
+
+			if (e.keyCode === 9) {
+				// TODO figure out how to handle tab
+				e.preventDefault();
+			}
+
+			let toFocus = undefined;
+
+			if (e.keyCode === 38) {
+				e.preventDefault();
+				toFocus = (e.target as HTMLDivElement)
+					.previousElementSibling as HTMLDivElement;
+			} else if (e.keyCode === 40) {
+				e.preventDefault();
+				toFocus = (e.target as HTMLDivElement)
+					.nextElementSibling as HTMLDivElement;
+			}
+
+			if (toFocus) {
+				toFocus && toFocus.focus();
+				if (e.shiftKey) {
+					setRowSelected(state =>
+						state.set(rowFocussed.current, true).set(key, true),
+					);
+				}
+			}
+
+			if (e.type === 'click') {
+				return setRowSelected(state => state.set(rowFocussed.current, true));
+			}
+		},
+		[],
+	);
 
 	const mainGridStyle: ICSSInJSStyle = useMemo(
 		() => ({
@@ -237,7 +270,8 @@ export function FluentList<D>({
 								className={shouldCheck ? 'selected' : undefined}
 								columns={columnDimensions}
 								onFocus={onRowFocus(item.itemKey)}
-								onKeyDown={onRowKeyDown}
+								onKeyDown={onRowEvent(item.itemKey)}
+								onClick={onRowEvent(item.itemKey)}
 							>
 								{enableCheckbox && (
 									<Flex vAlign="center" hAlign="center">

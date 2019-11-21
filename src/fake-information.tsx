@@ -1,10 +1,7 @@
 import { Flex, FlexProps, Text } from '@stardust-ui/react';
 import * as faker from 'faker';
 import * as React from 'react';
-import {
-	FLuentListColumn,
-	FluentListItem,
-} from './FluentList/FluentList.types';
+import { FluentListItem, FluentListProps } from './FluentList/FluentList.types';
 
 type Item = {
 	name: string;
@@ -29,7 +26,7 @@ const Cell: React.FC<Omit<FlexProps, 'vAlign' | 'hAlign'>> = props => (
 	<Flex vAlign="center" hAlign="start" {...props} />
 );
 
-export const columns: FLuentListColumn<Item>[] = [
+export const columns: FluentListProps<Item>['columns'] = [
 	{
 		columnKey: 'name',
 		headerComponent: ({ column }) => (

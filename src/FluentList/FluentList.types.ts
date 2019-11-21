@@ -1,9 +1,11 @@
+type Key = string;
+
 export type FluentListItem<D> = D & {
-	itemKey: string;
+	itemKey: Key;
 };
 
 type FLuentColumnBase = {
-	columnKey: string;
+	columnKey: Key;
 	gridColumnTemplate: string;
 };
 
@@ -27,4 +29,7 @@ export type FluentListProps<D> = {
 	enableCheckbox?: boolean;
 	enableHeader?: boolean;
 	rowHeight: number;
+	onCheckAll?: (status: boolean) => void;
+	onCheckItem?: (itemKey: Key, status: boolean) => void;
+	disableRowSelectOnActionItems?: boolean;
 };
