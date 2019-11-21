@@ -1,4 +1,4 @@
-type Key = string;
+export type Key = string;
 
 export type FluentListItem<D> = D & {
 	itemKey: Key;
