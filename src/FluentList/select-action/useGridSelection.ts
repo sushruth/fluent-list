@@ -27,8 +27,8 @@ export function useGridSelection<D>(items: FluentListItem<D>[]) {
 		[allRowsSelected],
 	);
 
-	const toggleItemSelect = useCallback(
-		(event: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+	const toggleItemSelect: ComponentEventHandler<FlexProps> = useCallback(
+		event => {
 			const key = (event.currentTarget as HTMLDivElement).dataset.key;
 			if (key) {
 				toggleItemWithKey(key);

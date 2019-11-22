@@ -21,6 +21,7 @@ const App: React.FC = () => {
 					items={items}
 					columns={columns}
 					rowHeight={48}
+					autoAdjustColumns
 				/>
 			</div>
 		</Flex>

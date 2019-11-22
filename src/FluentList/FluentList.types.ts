@@ -6,7 +6,9 @@ export type FluentListItem<D> = D & {
 
 type FLuentColumnBase = {
 	columnKey: Key;
-	gridColumnTemplate: string;
+	gridColumnTemplate: {
+		min: number;
+	};
 };
 
 export type ColumnComponentProps = {
@@ -32,4 +34,5 @@ export type FluentListProps<D> = {
 	onCheckAll?: (status: boolean) => void;
 	onCheckItem?: (itemKey: Key, status: boolean) => void;
 	disableRowSelectOnActionItems?: boolean;
+	autoAdjustColumns?: boolean;
 };

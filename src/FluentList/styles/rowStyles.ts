@@ -2,7 +2,11 @@ import { ICSSInJSStyle } from '@stardust-ui/react';
 import { useMemo } from 'react';
 import { useTheme } from '../helpers/useTheme';
 
-export function useRowStyles(length: number, rowHeight: number) {
+export function useRowStyles(
+	length: number,
+	rowHeight: number,
+	autoAdjustColumns?: boolean,
+) {
 	const { theme } = useTheme();
 
 	const main = theme.siteVariables.colorScheme.default;
@@ -11,7 +15,8 @@ export function useRowStyles(length: number, rowHeight: number) {
 		(): ICSSInJSStyle => ({
 			minHeight: `${rowHeight}px`,
 			maxHeight: `${rowHeight}px`,
-			overflow: 'hidden',
+			gridTemplateRows: `${rowHeight}px`,
+			overflow: autoAdjustColumns ? 'hidden' : 'visible',
 			position: 'absolute',
 			boxSizing: 'border-box',
 			left: 0,
@@ -35,17 +40,7 @@ export function useRowStyles(length: number, rowHeight: number) {
 				},
 			},
 		}),
-		[
-			rowHeight,
-			main.background,
-			main.backgroundActive,
-			main.backgroundActive1,
-			main.backgroundActiveHover,
-			main.backgroundHover,
-			main.border1,
-			main.borderActive,
-			main.borderActive1,
-		],
+		[rowHeight, autoAdjustColumns, main.border1, main.background, main.backgroundHover, main.borderActive, main.backgroundActive, main.backgroundActive1, main.borderActive1, main.backgroundActiveHover],
 	);
 
 	const headerRowStyles = useMemo(

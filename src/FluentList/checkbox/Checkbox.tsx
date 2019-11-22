@@ -1,4 +1,10 @@
-import { Flex, ICSSInJSStyle, Status } from '@stardust-ui/react';
+import {
+	ComponentEventHandler,
+	Flex,
+	FlexProps,
+	ICSSInJSStyle,
+	Status,
+} from '@stardust-ui/react';
 import * as React from 'react';
 import { useCallback } from 'react';
 import { Key } from '../FluentList.types';
@@ -9,10 +15,17 @@ const checkboxStyle: ICSSInJSStyle = {
 	':focus': { outline: 'none' },
 };
 
-export const ListCheckbox: React.FC<React.HTMLAttributes<HTMLDivElement> & {
+type CheckBoxProps = {
 	checked?: boolean;
 	itemKey?: Key;
-}> = ({ checked, onClick, itemKey, ...rest }) => {
+	onClick: ComponentEventHandler<FlexProps>;
+};
+
+export const ListCheckbox: React.FC<CheckBoxProps> = ({
+	checked,
+	onClick,
+	itemKey,
+}) => {
 	const clickHandler = useCallback(
 		event => {
 			event.stopPropagation();
@@ -27,16 +40,14 @@ export const ListCheckbox: React.FC<React.HTMLAttributes<HTMLDivElement> & {
 			hAlign="center"
 			onClick={clickHandler}
 			data-key={itemKey}
+			styles={checkboxStyle}
+			role="checkbox"
+			aria-checked={checked}
 		>
 			<Status
-				role="checkbox"
 				icon={checked ? 'stardust-checkmark' : undefined}
-				aria-checked={checked}
 				size="largest"
 				state={checked ? 'success' : 'unknown'}
-				styles={checkboxStyle}
-				as="div"
-				{...rest}
 			/>
 		</Flex>
 	);

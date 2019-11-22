@@ -17,7 +17,7 @@ export const items = Array(400000)
 				itemKey: index + '__' + faker.random.uuid(),
 				name: faker.name.findName(),
 				number: faker.phone.phoneNumber(),
-				word: faker.commerce.productAdjective(),
+				word: faker.company.catchPhrase(),
 			};
 		},
 	);
@@ -33,7 +33,9 @@ export const columns: FluentListProps<Item>['columns'] = [
 			<Text size="small" weight="bold" content="NAME" />
 		),
 		itemComponent: ({ item }) => <Cell>{item.name}</Cell>,
-		gridColumnTemplate: 'minmax(200px, 1fr)',
+		gridColumnTemplate: {
+			min: 200,
+		},
 	},
 	{
 		columnKey: 'number',
@@ -41,14 +43,22 @@ export const columns: FluentListProps<Item>['columns'] = [
 			<Text size="small" weight="bold" content="NUMBER" />
 		),
 		itemComponent: ({ item }) => <Cell>{item.number}</Cell>,
-		gridColumnTemplate: 'minmax(200px, 1fr)',
+		gridColumnTemplate: {
+			min: 200,
+		},
 	},
 	{
 		columnKey: 'word',
 		headerComponent: ({ column }) => (
 			<Text size="small" weight="bold" content="WORD" />
 		),
-		itemComponent: ({ item }) => <Cell>{item.word}</Cell>,
-		gridColumnTemplate: 'minmax(100px, 1fr)',
+		itemComponent: ({ item }) => (
+			<Cell>
+				<Text content={item.word} truncated />
+			</Cell>
+		),
+		gridColumnTemplate: {
+			min: 200,
+		},
 	},
 ];

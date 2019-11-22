@@ -1,6 +1,5 @@
 import { Flex, Grid, Ref } from '@stardust-ui/react';
 import * as React from 'react';
-import { useMemo } from 'react';
 import { ListCheckbox } from './checkbox/Checkbox';
 import { FluentListProps } from './FluentList.types';
 import { useGridScrollAction } from './scroll-action/useGridScrollAction';
@@ -14,22 +13,26 @@ export function FluentList<D>({
 	enableCheckbox,
 	enableHeader,
 	rowHeight,
+	autoAdjustColumns,
 }: FluentListProps<D>) {
-	const columnDimensions = useMemo(
-		() =>
-			[
-				enableCheckbox ? '48px' : '',
-				...columns.map(column => column.gridColumnTemplate),
-			].join(' '),
-		[columns, enableCheckbox],
-	);
-
-	const { rowStyles, headerRowStyles } = useRowStyles(items.length, rowHeight);
-	const mainGridStyle = useMainGridStyles(items.length, rowHeight);
-
-	const { threshold, pageArray, mainGrid } = useGridScrollAction(
+	const { rowStyles, headerRowStyles } = useRowStyles(
 		items.length,
 		rowHeight,
+		autoAdjustColumns,
+	);
+	const mainGridStyle = useMainGridStyles(items.length, rowHeight);
+
+	const {
+		threshold,
+		pageArray,
+		mainGrid,
+		columnDimensions,
+	} = useGridScrollAction(
+		items.length,
+		rowHeight,
+		!!enableCheckbox,
+		columns,
+		!!autoAdjustColumns,
 	);
 
 	const {
