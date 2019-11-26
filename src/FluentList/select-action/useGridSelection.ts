@@ -8,11 +8,7 @@ export function useGridSelection<D>(items: FluentListItem<D>[]) {
 	const keyFocussed = useRef('');
 
 	const [rowSelected, setRowSelected] = useState(() => {
-		const result: Record<string, boolean> = {};
-		for (const item of items) {
-			result[item.itemKey] = false;
-		}
-		return Im.from(result);
+		return Im.from<Record<string, boolean>>({});
 	});
 
 	const toggleItemWithKey = useCallback(
